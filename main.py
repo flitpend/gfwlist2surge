@@ -3,16 +3,32 @@
 import base64
 import urllib.request
 from urllib.parse import urlparse
+from argparse import ArgumentParser
+
 
 __all__ = ['main']
 
-gfwlist_url = \
+
+GFWLIST_URL = \
     'https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt'
 
 
+def parse_args():
+    '''Optional args for input and output files'''
+    parser = ArgumentParser()
+    parser.add_argument('-i', '--input', required=False, dest='input',\
+        help='Optional argument for local GFWList file', metavar='GFWLIST')
+    parser.add_argument('-o', '--output', required=False, dest='output', default='gfwlist.conf',\
+        help='Optional argument for output file name, default is gfwlist.conf', metavar='SURGE_CONF')
+    return parser.parse_args()
+
+
 def decode_gfwlist(raw):
-    '''Decode raw GFWList using base64'''
-    return base64.b64decode(raw)
+    '''Return decoded GFWList using base64'''
+    try:
+        return base64.b64decode(raw)
+    except:
+        return raw
 
 
 def get_hostname(url):
@@ -48,6 +64,8 @@ def parse_gfwlist(content):
             i = i.replace('*', '/')
 
         if i.startswith('!'):  # comments
+            continue
+        if i.startswith('['):  # comments
             continue
         elif i.startswith('@'):  # whitelists
             continue
@@ -88,13 +106,19 @@ def sanitise_domainSet(domainSet):
 
 
 def main():
-    print('Downloading GFWList from:\n    %s' % gfwlist_url)
-    raw = urllib.request.urlopen(gfwlist_url, timeout=10).read()
+    args = parse_args()
+    if (args.input):
+        with open(args.input, 'r') as f:
+            raw = f.read()
+    else:
+        print('Downloading GFWList from:\n    %s' % GFWLIST_URL)
+        raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
+
     decoded = decode_gfwlist(raw)
     parsedSet = parse_gfwlist(decoded)
     sanitisedSet = sanitise_domainSet(parsedSet)
     sortedList = sorted(list(sanitisedSet))
-    with open('gfwlist.conf', 'w') as f:
+    with open(args.output, 'w') as f:
         for item in sortedList:
             f.write('DOMAIN-SUFFIX,' + item + ',Proxy\n')
 
