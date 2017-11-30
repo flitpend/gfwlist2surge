@@ -2,7 +2,6 @@
 
 import base64
 import urllib.request
-from urllib.parse import urlparse
 from argparse import ArgumentParser
 
 
@@ -31,96 +30,67 @@ def decode_gfwlist(raw):
         return raw
 
 
-def get_hostname(url):
-    '''Get hostname'''
-    if not url.startswith('http:'):
-        url = 'http://' + url
-    u = urlparse(url)
-    return u.hostname
-
-
-def add_domain(s, url):
-    '''Add a hostname to a set'''
-    hostname = get_hostname(url)
-    if hostname is not None:
-        if hostname.startswith('.'):
-            hostname = hostname.lstrip('.')
-        if hostname.endswith('/'):
-            hostname = hostname.rstrip('/')
-        s.add(hostname)
-
-
 def parse_gfwlist(content):
     '''Parse GFWList line by line'''
-    gfwList = content.splitlines()
-    domainSet = set()
+    gfw_list = content.splitlines()
+    parsed_list = []
 
-    for item in gfwList:
+    for item in gfw_list:
         i = bytes.decode(item)
 
+        # Preprocess
         if i.find('.*') >= 0:
             continue
-        elif i.find('*') >= 0:
-            i = i.replace('*', '/')
+        if i.find('*') >= 0:
+            i = i.replace('*', '')
+        if i.find('https://') >= 0:
+            i = i.replace('https://', '')
+        if i.find('http://') >= 0:
+            i = i.replace('http://', '')
+        if i.find('/') >= 0:
+            i = i[:i.index('/')]
 
-        if i.startswith('!'):  # comments
-            continue
-        if i.startswith('['):  # comments
-            continue
-        elif i.startswith('@'):  # whitelists
+        # Parse
+        if i.startswith('!') or i.startswith('[') or i.startswith('@'): # comments and whitelists
             continue
         elif i.startswith('||'):
-            add_domain(domainSet, i.lstrip('||'))
+            parsed_list.append(i.lstrip('||'))
         elif i.startswith('|'):
-            add_domain(domainSet, i.lstrip('|'))
+            parsed_list.append(i.lstrip('|'))
         elif i.startswith('.'):
-            add_domain(domainSet, i.lstrip('.'))
+            parsed_list.append(i.lstrip('.'))
         else:
-            add_domain(domainSet, i)
+            parsed_list.append(i)
 
-    return domainSet
+    return parsed_list
 
 
-def sanitise_domainSet(domainSet):
-    '''Sanitise domain set'''
-    with open('tld.txt', 'r') as f:
-        tldSet = set(f.read().splitlines())
+def sanitise_gfwlist(content):
+    '''Sanitise and sort GFWList'''
+    sanitised_list = []
+    for item in content:
+        if item not in sanitised_list:
+            sanitised_list.append(item)
 
-    sanitisedSet = set()
-    for item in domainSet:
-        domain_parts = item.split('.')
-        last_root_domain = None
-        for i in range(0, len(domain_parts)):
-            root_domain = '.'.join(domain_parts[len(domain_parts) - i - 1:])
-            if i == 0:
-                if not tldSet.__contains__(root_domain):
-                    break
-            last_root_domain = root_domain
-            if tldSet.__contains__(root_domain):
-                continue
-            else:
-                break
-        if last_root_domain is not None:
-            sanitisedSet.add(last_root_domain)
-    return sanitisedSet
+    return sorted(sanitised_list)
 
 
 def main():
     args = parse_args()
-    if (args.input):
-        with open(args.input, 'r') as f:
-            raw = f.read()
+    if args.input:
+        with open(args.input, 'r') as fh_read:
+            gfwlist_raw = fh_read.read()
     else:
         print('Downloading GFWList from:\n    %s' % GFWLIST_URL)
-        raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
+        gfwlist_raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
 
-    decoded = decode_gfwlist(raw)
-    parsedSet = parse_gfwlist(decoded)
-    sanitisedSet = sanitise_domainSet(parsedSet)
-    sortedList = sorted(list(sanitisedSet))
-    with open(args.output, 'w') as f:
-        for item in sortedList:
-            f.write('DOMAIN-SUFFIX,' + item + ',Proxy\n')
+    decoded_list = decode_gfwlist(gfwlist_raw)
+    parsed_list = parse_gfwlist(decoded_list)
+    sanitised_list = sanitise_gfwlist(parsed_list)
+
+    with open(args.output, 'w') as fh_write:
+        for line in sanitised_list:
+            fh_write.write('DOMAIN-SUFFIX,' + line + ',Proxy\n')
 
 
 if __name__ == '__main__':
