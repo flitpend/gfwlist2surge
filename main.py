@@ -2,6 +2,7 @@
 
 import base64
 import urllib.request
+from pathlib import Path
 from argparse import ArgumentParser
 
 
@@ -12,6 +13,10 @@ GFWLIST_URL = \
     'https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt'
 
 
+TLDLIST_URL = \
+    'https://data.iana.org/TLD/tlds-alpha-by-domain.txt'
+
+
 def parse_args():
     '''Optional args for input and output files'''
     parser = ArgumentParser()
@@ -19,6 +24,8 @@ def parse_args():
         help='Optional argument for local GFWList file', metavar='GFWLIST')
     parser.add_argument('-o', '--output', required=False, dest='output', default='gfwlist.conf',\
         help='Optional argument for output file name, default is gfwlist.conf', metavar='SURGE_CONF')
+    parser.add_argument('-r', '--refreshtld', required=False, dest='tld',\
+        help='Optional argument for refreshing top domain list', action='store_true')
     return parser.parse_args()
 
 
@@ -67,30 +74,54 @@ def parse_gfwlist(content):
 
 def sanitise_gfwlist(content):
     '''Sanitise and sort GFWList'''
+    with open('tld.txt', 'r') as fh:
+        tld_list = fh.read().lower().splitlines()
+
     sanitised_list = []
     for item in content:
-        if item not in sanitised_list:
+        domain_suffix = item.split('.')[-1]
+        if (domain_suffix in tld_list) and (item not in sanitised_list):
             sanitised_list.append(item)
 
     return sorted(sanitised_list)
 
 
+def refresh_tld(content):
+    '''Remove comments from TLD list'''
+    tld_byte_list = content.splitlines()
+    tld_list = []
+    for item in tld_byte_list:
+        i = bytes.decode(item)
+        if not i.startswith('#'):
+            tld_list.append(i)
+
+    with open('tld.txt', 'w') as fh:
+        for line in tld_list:
+            fh.write(line + '\n')
+
+
 def main():
     args = parse_args()
+    local_tld = Path('./tld.txt')
+
     if args.input:
-        with open(args.input, 'r') as fh_read:
-            gfwlist_raw = fh_read.read()
+        with open(args.input, 'r') as fh:
+            gfwlist_raw = fh.read()
     else:
         print('Downloading GFWList from:\n    %s' % GFWLIST_URL)
         gfwlist_raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
+    if args.tld or (not local_tld.exists()):
+        print('Downloading TLD list from:\n    %s' % TLDLIST_URL)
+        tldlist_raw = urllib.request.urlopen(TLDLIST_URL, timeout=10).read()
+        refresh_tld(tldlist_raw)
 
     decoded_list = decode_gfwlist(gfwlist_raw)
     parsed_list = parse_gfwlist(decoded_list)
     sanitised_list = sanitise_gfwlist(parsed_list)
 
-    with open(args.output, 'w') as fh_write:
+    with open(args.output, 'w') as fh:
         for line in sanitised_list:
-            fh_write.write('DOMAIN-SUFFIX,' + line + ',Proxy\n')
+            fh.write('DOMAIN-SUFFIX,' + line + ',Proxy\n')
 
 
 if __name__ == '__main__':
