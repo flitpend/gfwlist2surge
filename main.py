@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import base64
+import re
 import urllib.request
 from pathlib import Path
 from argparse import ArgumentParser
@@ -48,6 +49,8 @@ def parse_gfwlist(content):
         # Preprocess
         if i.find('.*') >= 0:
             continue
+        if i.find('*.') >= 0:
+            i = re.sub(r'^.+\*\.', '', i)
         if i.find('*') >= 0:
             i = i.replace('*', '')
         if i.find('https://') >= 0:
