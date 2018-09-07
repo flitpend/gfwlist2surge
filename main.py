@@ -95,7 +95,7 @@ def refresh_tld(content):
     tld_list = []
     for item in tld_byte_list:
         i = bytes.decode(item)
-        if not i.startswith('#'):
+        if not (i.startswith('#') or '-' in i):
             tld_list.append(i)
 
     with open('tld.txt', 'w') as fh:
