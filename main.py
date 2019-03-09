@@ -6,7 +6,6 @@ import urllib.request
 from pathlib import Path
 from argparse import ArgumentParser
 
-
 __all__ = ['main']
 
 
@@ -21,12 +20,28 @@ TLDLIST_URL = \
 def parse_args():
     '''Optional args for input and output files'''
     parser = ArgumentParser()
-    parser.add_argument('-i', '--input', required=False, dest='input',\
-        help='Optional argument for local GFWList file', metavar='GFWLIST')
-    parser.add_argument('-o', '--output', required=False, dest='output', default='gfwlist.conf',\
-        help='Optional argument for output file name, default is gfwlist.conf', metavar='SURGE_CONF')
-    parser.add_argument('-r', '--refreshtld', required=False, dest='tld',\
-        help='Optional argument for refreshing top domain list', action='store_true')
+    parser.add_argument(
+        '-i',
+        '--input',
+        required=False,
+        dest='input',
+        help='Optional argument for local GFWList file',
+        metavar='GFWLIST')
+    parser.add_argument(
+        '-o',
+        '--output',
+        required=False,
+        dest='output',
+        default='gfwlist.conf',
+        help='Optional argument for output file name, default is gfwlist.conf',
+        metavar='SURGE_CONF')
+    parser.add_argument(
+        '-r',
+        '--refreshtld',
+        required=False,
+        dest='tld',
+        help='Optional argument for refreshing top domain list',
+        action='store_true')
     return parser.parse_args()
 
 
@@ -61,7 +76,8 @@ def parse_gfwlist(content):
             i = i[:i.index('/')]
 
         # Parse
-        if i.startswith('!') or i.startswith('[') or i.startswith('@'): # comments and whitelists
+        if i.startswith('!') or i.startswith('[') or i.startswith(
+                '@'):  # comments and whitelists
             continue
         elif i.startswith('||'):
             parsed_list.append(i.lstrip('||'))
@@ -129,3 +145,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
