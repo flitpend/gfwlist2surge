@@ -76,8 +76,7 @@ def parse_gfwlist(content):
             i = i[:i.index('/')]
 
         # Parse
-        if i.startswith('!') or i.startswith('[') or i.startswith(
-                '@'):  # comments and whitelists
+        if i.startswith('!') or i.startswith('[') or i.startswith('@'):
             continue
         elif i.startswith('||'):
             parsed_list.append(i.lstrip('||'))
@@ -140,7 +139,7 @@ def main():
 
     with open(args.output, 'w') as fh:
         for line in sanitised_list:
-            fh.write('DOMAIN-SUFFIX,' + line + ',Proxy\n')
+            fh.write('DOMAIN-SUFFIX,' + line + '\n')
 
 
 if __name__ == '__main__':

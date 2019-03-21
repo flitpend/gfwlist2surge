@@ -13,8 +13,14 @@ python3 main.py [-h] [-i GFWLIST] [-o SURGE_CONF]
 Generates gfwlist.conf with sorted domain list in the following format:
 
 ```
-DOMAIN-SUFFIX,<domain0>,Proxy
-DOMAIN-SUFFIX,<domain1>,Proxy
-DOMAIN-SUFFIX,<domain2>,Proxy
-DOMAIN-SUFFIX,<domain3>,Proxy
+DOMAIN-SUFFIX,<domain0>
+DOMAIN-SUFFIX,<domain1>
+DOMAIN-SUFFIX,<domain2>
+DOMAIN-SUFFIX,<domain3>
+```
+
+You may create a RULE-SET in Surge config file to quickly add these domains to your rules:
+
+```
+RULE-SET,https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/gfwlist.conf,<your_proxy>
 ```
