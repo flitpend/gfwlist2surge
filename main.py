@@ -10,7 +10,7 @@ __all__ = ['main']
 
 
 GFWLIST_URL = \
-    'https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt'
+    'https://raw.githubusercontent.com/gfwlist/tinylist/master/tinylist.txt'
 
 
 TLDLIST_URL = \
