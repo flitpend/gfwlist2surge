@@ -104,6 +104,15 @@ def sanitise_gfwlist(content):
     return sorted(sanitised_list)
 
 
+def add_custom(content):
+    '''Add custom rules'''
+    with open('custom.conf', 'r') as fh:
+        custom_list = fh.read().splitlines()
+
+    complete_list = content + custom_list
+    return sorted(complete_list)
+
+
 def refresh_tld(content):
     '''Remove comments from TLD list'''
     tld_byte_list = content.splitlines()
@@ -136,12 +145,12 @@ def main():
     decoded_list = decode_gfwlist(gfwlist_raw)
     parsed_list = parse_gfwlist(decoded_list)
     sanitised_list = sanitise_gfwlist(parsed_list)
+    final_list = add_custom(sanitised_list)
 
     with open(args.output, 'w') as fh:
-        for line in sanitised_list:
+        for line in final_list:
             fh.write('DOMAIN-SUFFIX,' + line + '\n')
 
 
 if __name__ == '__main__':
     main()
-
