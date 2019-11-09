@@ -109,6 +109,11 @@ def add_custom(content):
     with open('custom.conf', 'r') as fh:
         custom_list = fh.read().splitlines()
 
+    for item in custom_list:
+        if item in content:
+            custom_list.remove(item)
+            print('Removed duplicate domain in custom rule: %s' % item)
+
     complete_list = content + custom_list
     return sorted(complete_list)
 
