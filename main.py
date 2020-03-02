@@ -21,6 +21,13 @@ def parse_args():
     '''Optional args for input and output files'''
     parser = ArgumentParser()
     parser.add_argument(
+        '-c',
+        '--custom',
+        required=False,
+        dest='custom',
+        help='Optional argument for custom domain list',
+        metavar='CUSTOM.CONF')
+    parser.add_argument(
         '-i',
         '--input',
         required=False,
@@ -34,7 +41,7 @@ def parse_args():
         dest='output',
         default='gfwlist.conf',
         help='Optional argument for output file name, default is gfwlist.conf',
-        metavar='SURGE_CONF')
+        metavar='SURGE.CONF')
     parser.add_argument(
         '-r',
         '--refreshtld',
@@ -104,9 +111,9 @@ def sanitise_gfwlist(content):
     return sorted(sanitised_list)
 
 
-def add_custom(content):
+def add_custom(content, custom):
     '''Add custom rules'''
-    with open('custom.conf', 'r') as fh:
+    with open(custom, 'r') as fh:
         custom_list = fh.read().splitlines()
 
     for item in custom_list:
@@ -150,7 +157,10 @@ def main():
     decoded_list = decode_gfwlist(gfwlist_raw)
     parsed_list = parse_gfwlist(decoded_list)
     sanitised_list = sanitise_gfwlist(parsed_list)
-    final_list = add_custom(sanitised_list)
+    if args.custom:
+        final_list = add_custom(sanitised_list, args.custom)
+    else:
+        final_list = sanitised_list
 
     with open(args.output, 'w') as fh:
         for line in final_list:
