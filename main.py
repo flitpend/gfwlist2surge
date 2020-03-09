@@ -39,8 +39,8 @@ def parse_args():
         '--output',
         required=False,
         dest='output',
-        default='gfwlist.conf',
-        help='Optional argument for output file name, default is gfwlist.conf',
+        default='surge.conf',
+        help='Optional argument for output file name, default is surge.conf',
         metavar='SURGE.CONF')
     parser.add_argument(
         '-r',
