@@ -18,7 +18,6 @@ TLDLIST_URL = \
 
 
 def parse_args():
-    '''Optional args for input and output files'''
     parser = ArgumentParser()
     parser.add_argument(
         '-c',
@@ -32,7 +31,7 @@ def parse_args():
         '--input',
         required=False,
         dest='input',
-        help='Optional argument for local GFWList file',
+        help='Optional argument for local GFWList file (base64 encoded), default is tinylist',
         metavar='GFWLIST')
     parser.add_argument(
         '-o',
@@ -40,7 +39,7 @@ def parse_args():
         required=False,
         dest='output',
         default='surge.conf',
-        help='Optional argument for output file name, default is surge.conf',
+        help='Optional argument for Surge config output file name, default is surge.conf',
         metavar='SURGE.CONF')
     parser.add_argument(
         '-r',
@@ -147,7 +146,7 @@ def main():
         with open(args.input, 'r') as fh:
             gfwlist_raw = fh.read()
     else:
-        print('Downloading GFWList from:\n    %s' % GFWLIST_URL)
+        print('Downloading tinylist from:\n    %s' % GFWLIST_URL)
         gfwlist_raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
     if args.tld or (not local_tld.exists()):
         print('Downloading TLD list from:\n    %s' % TLDLIST_URL)

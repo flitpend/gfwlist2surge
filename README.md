@@ -2,15 +2,19 @@
 A simple tool to convert GFWList into surge config expressions.
 
 ```
-python3 main.py [-i GFWLIST] [-o SURGE_CONF]
-    -h, --help          Show this help message and exit
-    -i GFWLIST, --input GFWLIST
-                        Optional argument for local GFWList file
-    -o CONF, --output CONF
-                        Optional argument for output file name, default is gfwlist.conf
+python3 main.py [-i GFWLIST] [-o SURGE.CONF]
+    optional arguments:
+        -h, --help            show this help message and exit
+        -c CUSTOM.CONF, --custom CUSTOM.CONF
+                              Optional argument for your own custom domain list
+        -i GFWLIST, --input GFWLIST
+                              Optional argument for local GFWList file (base64 encoded)
+        -o SURGE.CONF, --output SURGE.CONF
+                              Optional argument for Surge config output file name, default is surge.conf
+        -r, --refreshtld      Optional argument for refreshing top domain list
 ```
 
-Generates surge.conf with sorted domain list in the following format:
+Automatically combine GFWList with your custom.conf (if provided), and generate surge.conf with uniquified and sorted domain list in the following format:
 
 ```
 DOMAIN-SUFFIX,<domain0>
