@@ -2,7 +2,7 @@
 A simple tool to convert GFWList into surge config expressions.
 
 ```
-python3 main.py [-i GFWLIST] [-o SURGE.CONF]
+usage: main.py [-h] [-c CUSTOM.CONF] [-i GFWLIST] [-o SURGE.CONF] [-r]
     optional arguments:
         -h, --help            show this help message and exit
         -c CUSTOM.CONF, --custom CUSTOM.CONF
@@ -27,4 +27,21 @@ You may create a RULE-SET in Surge config file to quickly add these domains to y
 
 ```
 RULE-SET,https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/surge.conf,<your_proxy>
+```
+
+Example 1: convert tinylist into surge.conf
+```
+python3 main.py 
+```
+Example 2: merge tinylist and your custom domain list, then convert to surge.conf
+```
+python3 main.py -c custom.conf
+```
+Example 3: merge local gfwlist (base64 encoded) and your custom domain list, then convert to yourfilename.conf
+```
+python3 main.py -i gfwlist.txt -c custom.conf -o yourfilename.conf
+```
+Example 4: update tld.txt (top level domain)
+```
+python3 main.py -r
 ```
