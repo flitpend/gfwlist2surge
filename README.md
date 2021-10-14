@@ -1,7 +1,7 @@
 # gfwlist2surge
 A simple tool to convert GFWList into surge config expressions.
 
-```
+```sh
 usage: main.py [-h] [-c CUSTOM.CONF] [-i GFWLIST] [-o SURGE.CONF] [-r]
     optional arguments:
         -h, --help            show this help message and exit
@@ -11,7 +11,7 @@ usage: main.py [-h] [-c CUSTOM.CONF] [-i GFWLIST] [-o SURGE.CONF] [-r]
                               Optional argument for local GFWList file (base64 encoded)
         -o SURGE.CONF, --output SURGE.CONF
                               Optional argument for Surge config output file name, default is surge.conf
-        -r, --refreshtld      Optional argument for refreshing top domain list
+        -t, --tld             Optional argument for updating top domain list
 ```
 
 Automatically combine GFWList with your custom.conf (if provided), and generate surge.conf with uniquified and sorted domain list in the following format:
@@ -30,18 +30,18 @@ RULE-SET,https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/surge.c
 ```
 
 Example 1: convert tinylist into surge.conf
-```
+```sh
 python3 main.py 
 ```
 Example 2: merge tinylist and your custom domain list, then convert to surge.conf
-```
+```sh
 python3 main.py -c custom.conf
 ```
 Example 3: merge local gfwlist (base64 encoded) and your custom domain list, then convert to yourfilename.conf
-```
+```sh
 python3 main.py -i gfwlist.txt -c custom.conf -o yourfilename.conf
 ```
 Example 4: update tld.txt (top level domain)
-```
-python3 main.py -r
+```sh
+python3 main.py -t
 ```

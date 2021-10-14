@@ -39,14 +39,14 @@ def parse_args():
         required=False,
         dest='output',
         default='surge.conf',
-        help='Optional argument for Surge config output file name, default is surge.conf',
+        help='Optional argument for Surge config output, default is surge.conf',
         metavar='SURGE.CONF')
     parser.add_argument(
-        '-r',
-        '--refreshtld',
+        '-t',
+        '--tld',
         required=False,
         dest='tld',
-        help='Optional argument for refreshing top domain list',
+        help='Optional argument for updating top domain list',
         action='store_true')
     return parser.parse_args()
 
@@ -124,7 +124,7 @@ def add_custom(content, custom):
     return sorted(complete_list)
 
 
-def refresh_tld(content):
+def update_tld(content):
     '''Remove comments from TLD list'''
     tld_byte_list = content.splitlines()
     tld_list = []
@@ -142,28 +142,31 @@ def main():
     args = parse_args()
     local_tld = Path('./tld.txt')
 
-    if args.input:
-        with open(args.input, 'r') as fh:
-            gfwlist_raw = fh.read()
-    else:
-        print('Downloading tinylist from:\n    %s' % GFWLIST_URL)
-        gfwlist_raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
     if args.tld or (not local_tld.exists()):
         print('Downloading TLD list from:\n    %s' % TLDLIST_URL)
         tldlist_raw = urllib.request.urlopen(TLDLIST_URL, timeout=10).read()
-        refresh_tld(tldlist_raw)
+        update_tld(tldlist_raw)
 
-    decoded_list = decode_gfwlist(gfwlist_raw)
-    parsed_list = parse_gfwlist(decoded_list)
-    sanitised_list = sanitise_gfwlist(parsed_list)
-    if args.custom:
-        final_list = add_custom(sanitised_list, args.custom)
-    else:
-        final_list = sanitised_list
+    if not args.tld:
+        if args.input:
+            with open(args.input, 'r') as fh:
+                gfwlist_raw = fh.read()
+        else:
+            print('Downloading tinylist from:\n    %s' % GFWLIST_URL)
+            gfwlist_raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
 
-    with open(args.output, 'w') as fh:
-        for line in final_list:
-            fh.write('DOMAIN-SUFFIX,' + line + '\n')
+        decoded_list = decode_gfwlist(gfwlist_raw)
+        parsed_list = parse_gfwlist(decoded_list)
+        sanitised_list = sanitise_gfwlist(parsed_list)
+
+        if args.custom:
+            final_list = add_custom(sanitised_list, args.custom)
+        else:
+            final_list = sanitised_list
+
+        with open(args.output, 'w') as fh:
+            for line in final_list:
+                fh.write('DOMAIN-SUFFIX,' + line + '\n')
 
 
 if __name__ == '__main__':
