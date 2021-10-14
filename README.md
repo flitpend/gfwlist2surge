@@ -1,7 +1,7 @@
 # gfwlist2surge
 A simple tool to convert GFWList into surge config expressions.
 
-```sh
+```
 usage: main.py [-h] [-c CUSTOM.CONF] [-i GFWLIST] [-o SURGE.CONF] [-r]
     optional arguments:
         -h, --help            show this help message and exit
