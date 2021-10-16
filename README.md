@@ -2,16 +2,15 @@
 A simple tool to convert GFWList into surge config expressions.
 
 ```
-usage: main.py [-h] [-c CUSTOM.CONF] [-i GFWLIST] [-o SURGE.CONF] [-r]
-    optional arguments:
-        -h, --help            show this help message and exit
-        -c CUSTOM.CONF, --custom CUSTOM.CONF
-                              Optional argument for your own custom domain list
-        -i GFWLIST, --input GFWLIST
-                              Optional argument for local GFWList file (base64 encoded)
-        -o SURGE.CONF, --output SURGE.CONF
-                              Optional argument for Surge config output file name, default is surge.conf
-        -t, --tld             Optional argument for updating top domain list
+Usage: main.py [-c CUSTOM.CONF] [-i GFWLIST] [-o SURGE.CONF] [-r]
+    -c CUSTOM.CONF, --custom CUSTOM.CONF
+        Optional argument for your own local custom domain list
+    -i GFWLIST, --input GFWLIST
+        Optional argument for local GFWList file (base64 encoded), default is tinylist
+    -o SURGE.CONF, --output SURGE.CONF
+        Optional argument for Surge config output, default is surge.conf
+    -t, --tld
+        Optional argument for updating top domain list
 ```
 
 Automatically combine GFWList with your custom.conf (if provided), and generate surge.conf with uniquified and sorted domain list in the following format:
@@ -29,7 +28,7 @@ You may create a RULE-SET in Surge config file to quickly add these domains to y
 RULE-SET,https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/surge.conf,<your_proxy>
 ```
 
-Example 1: convert tinylist into surge.conf
+Example 1: fetch tinylist from Github and convert to surge.conf
 ```sh
 python3 main.py 
 ```

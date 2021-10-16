@@ -24,7 +24,7 @@ def parse_args():
         '--custom',
         required=False,
         dest='custom',
-        help='Optional argument for custom domain list',
+        help='Optional argument for local custom domain list',
         metavar='CUSTOM.CONF')
     parser.add_argument(
         '-i',
