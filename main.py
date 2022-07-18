@@ -35,7 +35,7 @@ def parse_args():
         '--input',
         required=False,
         dest='input',
-        help='Optional argument for local GFWList file (base64 encoded), default is tinylist',
+        help='Optional argument for local GFWList file (base64 encoded)',
         metavar='GFWLIST')
     parser.add_argument(
         '-o',
@@ -156,7 +156,7 @@ def main():
             with open(args.input, 'r') as fh:
                 gfwlist_raw = fh.read()
         else:
-            print('Downloading tinylist from:\n    %s' % GFWLIST_URL)
+            print('Downloading gfwlist from:\n    %s' % GFWLIST_URL)
             gfwlist_raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
 
         decoded_list = decode_gfwlist(gfwlist_raw)
@@ -170,7 +170,7 @@ def main():
 
         with open(args.output, 'w') as fh:
             for line in final_list:
-                fh.write('DOMAIN-SUFFIX,' + line + '\n')
+                fh.write('.' + line + '\n')
 
 
 if __name__ == '__main__':

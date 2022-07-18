@@ -16,16 +16,16 @@ Usage: main.py [-c CUSTOM.CONF] [-i GFWLIST] [-o SURGE.CONF] [-r]
 Automatically combine GFWList with your custom.conf (if provided), and generate surge.conf with uniquified and sorted domain list in the following format:
 
 ```
-DOMAIN-SUFFIX,<domain0>
-DOMAIN-SUFFIX,<domain1>
-DOMAIN-SUFFIX,<domain2>
-DOMAIN-SUFFIX,<domain3>
+.domain0.com
+.domain1.com
+.domain2.com
+.domain3.com
 ```
 
-You may create a RULE-SET in Surge config file to quickly add these domains to your rules:
+You may create a DOMAIN-SET in Surge config file to quickly add these domains to your rules:
 
 ```
-RULE-SET,https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/surge.conf,<your_proxy>
+DOMAIN-SET,https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/surge.conf,<your_proxy>
 ```
 
 Example 1: fetch gfwlist from Github and convert to surge.conf
