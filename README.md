@@ -22,26 +22,38 @@ Automatically combine GFWList with your custom.conf (if provided), and generate 
 .domain3.com
 ```
 
-You may create a one liner in Surge config file to quickly add these domains to your rules:
+You may add a one liner in Surge config file to quickly add these domains to your rules:
 
 ```
 DOMAIN-SET,https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/surge.conf,<your_proxy>
 ```
+
+<br>
+<br>
 
 Example 1: fetch GFWList and convert to surge.conf
 ```sh
 python3 main.py 
 ```
 
+<br>
+<br>
+
 Example 2: merge GFWList and your custom domain list, then convert to surge.conf
 ```sh
 python3 main.py -c custom.conf
 ```
 
+<br>
+<br>
+
 Example 3: merge local GFWList (base64 encoded) and your custom domain list, then convert to yourfilename.conf
 ```sh
 python3 main.py -i gfwlist.txt -c custom.conf -o yourfilename.conf
 ```
+
+<br>
+<br>
 
 Example 4: update tld.txt (top level domain)
 ```sh
