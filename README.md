@@ -2,7 +2,8 @@
 A simple tool to convert GFWList into surge config expressions.
 
 ```
-Usage: main.py [-c CUSTOM.CONF] [-i GFWLIST] [-o SURGE.CONF] [-r]
+Usage: main.py [-c CUSTOM.CONF] [-i GFWLIST] [-o SURGE.CONF] [-t]
+
     -c CUSTOM.CONF, --custom CUSTOM.CONF
         Optional argument for your own local custom domain list
     -i GFWLIST, --input GFWLIST
