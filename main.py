@@ -151,26 +151,25 @@ def main():
         tldlist_raw = urllib.request.urlopen(TLDLIST_URL, timeout=10).read()
         update_tld(tldlist_raw)
 
-    if not args.tld:
-        if args.input:
-            with open(args.input, 'r') as fh:
-                gfwlist_raw = fh.read()
-        else:
-            print('Downloading gfwlist from:\n    %s' % GFWLIST_URL)
-            gfwlist_raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
+    if args.input:
+        with open(args.input, 'r') as fh:
+            gfwlist_raw = fh.read()
+    else:
+        print('Downloading gfwlist from:\n    %s' % GFWLIST_URL)
+        gfwlist_raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
 
-        decoded_list = decode_gfwlist(gfwlist_raw)
-        parsed_list = parse_gfwlist(decoded_list)
-        sanitised_list = sanitise_gfwlist(parsed_list)
+    decoded_list = decode_gfwlist(gfwlist_raw)
+    parsed_list = parse_gfwlist(decoded_list)
+    sanitised_list = sanitise_gfwlist(parsed_list)
 
-        if args.custom:
-            final_list = add_custom(sanitised_list, args.custom)
-        else:
-            final_list = sanitised_list
+    if args.custom:
+        final_list = add_custom(sanitised_list, args.custom)
+    else:
+        final_list = sanitised_list
 
-        with open(args.output, 'w') as fh:
-            for line in final_list:
-                fh.write('.' + line + '\n')
+    with open(args.output, 'w') as fh:
+        for line in final_list:
+            fh.write('.' + line + '\n')
 
 
 if __name__ == '__main__':
