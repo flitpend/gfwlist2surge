@@ -163,9 +163,15 @@ def main():
     sanitised_list = sanitise_gfwlist(parsed_list)
 
     if args.custom:
-        final_list = add_custom(sanitised_list, args.custom)
+        prefinal_list = add_custom(sanitised_list, args.custom)
     else:
-        final_list = sanitised_list
+        prefinal_list = sanitised_list
+
+    '''Process domains that starts with .www.'''
+    final_list = []
+    for item in prefinal_list:
+        item = re.sub('^www\.', '', item)
+        final_list.append(item)
 
     with open(args.output, 'w') as fh:
         for line in final_list:
