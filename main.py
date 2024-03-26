@@ -11,10 +11,9 @@ __all__ = ['main']
 
 GFWLIST_URL = \
     'https://gitlab.com/gfwlist/gfwlist/raw/master/gfwlist.txt'
-
-
-# GFWLIST_URL = \
-#     'https://raw.githubusercontent.com/gfwlist/tinylist/master/tinylist.txt'
+#    'https://raw.githubusercontent.com/gfwlist/tinylist/master/tinylist.txt'
+#    'https://bitbucket.org/gfwlist/gfwlist/raw/HEAD/gfwlist.txt'
+#    'https://pagure.io/gfwlist/raw/master/f/gfwlist.txt'
 
 
 TLDLIST_URL = \
@@ -164,18 +163,13 @@ def main():
         sanitised_list = sanitise_gfwlist(parsed_list)
 
         if args.custom:
-            prefinal_list = add_custom(sanitised_list, args.custom)
+            final_list = add_custom(sanitised_list, args.custom)
         else:
-            prefinal_list = sanitised_list
-
-        '''Process domains that starts with .www.'''
-        final_list = []
-        for item in prefinal_list:
-            item = re.sub('^www\.', '', item)
-            final_list.append(item)
+            final_list = sanitised_list
 
         with open(args.output, 'w') as fh:
             for line in final_list:
+                line = re.sub('^www\.', '', line) # Process domains that starts with www.
                 fh.write('.' + line + '\n')
 
 
