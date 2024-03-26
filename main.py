@@ -122,7 +122,7 @@ def add_custom(content, custom):
     for item in custom_list:
         if item in content:
             custom_list.remove(item)
-            print('Removed duplicate domain in custom rule: %s' % item)
+            print('Ignored duplicate domain in custom rule: %s' % item)
 
     complete_list = content + custom_list
     return sorted(complete_list)
