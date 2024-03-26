@@ -151,31 +151,32 @@ def main():
         tldlist_raw = urllib.request.urlopen(TLDLIST_URL, timeout=10).read()
         update_tld(tldlist_raw)
 
-    if args.input:
-        with open(args.input, 'r') as fh:
-            gfwlist_raw = fh.read()
-    else:
-        print('Downloading gfwlist from:\n    %s' % GFWLIST_URL)
-        gfwlist_raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
+    if not args.tld:
+        if args.input:
+            with open(args.input, 'r') as fh:
+                gfwlist_raw = fh.read()
+        else:
+            print('Downloading gfwlist from:\n    %s' % GFWLIST_URL)
+            gfwlist_raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
 
-    decoded_list = decode_gfwlist(gfwlist_raw)
-    parsed_list = parse_gfwlist(decoded_list)
-    sanitised_list = sanitise_gfwlist(parsed_list)
+        decoded_list = decode_gfwlist(gfwlist_raw)
+        parsed_list = parse_gfwlist(decoded_list)
+        sanitised_list = sanitise_gfwlist(parsed_list)
 
-    if args.custom:
-        prefinal_list = add_custom(sanitised_list, args.custom)
-    else:
-        prefinal_list = sanitised_list
+        if args.custom:
+            prefinal_list = add_custom(sanitised_list, args.custom)
+        else:
+            prefinal_list = sanitised_list
 
-    '''Process domains that starts with .www.'''
-    final_list = []
-    for item in prefinal_list:
-        item = re.sub('^www\.', '', item)
-        final_list.append(item)
+        '''Process domains that starts with .www.'''
+        final_list = []
+        for item in prefinal_list:
+            item = re.sub('^www\.', '', item)
+            final_list.append(item)
 
-    with open(args.output, 'w') as fh:
-        for line in final_list:
-            fh.write('.' + line + '\n')
+        with open(args.output, 'w') as fh:
+            for line in final_list:
+                fh.write('.' + line + '\n')
 
 
 if __name__ == '__main__':
