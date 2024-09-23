@@ -83,6 +83,8 @@ def parse_gfwlist(content):
             i = i.replace('http://', '')
         if i.find('/') >= 0:
             i = i[:i.index('/')]
+        if i.find('www.', 0, 6) >= 0:
+            i = i.replace('www.', '', 1)
 
         # Parse
         if i.startswith('!') or i.startswith('[') or i.startswith('@'):
@@ -169,7 +171,6 @@ def main():
 
         with open(args.output, 'w') as fh:
             for line in final_list:
-                line = re.sub('^www\.', '', line) # Process domains that starts with www.
                 fh.write('.' + line + '\n')
 
 
