@@ -160,14 +160,10 @@ def main():
             print('Downloading gfwlist from:\n    %s' % GFWLIST_URL)
             gfwlist_raw = urllib.request.urlopen(GFWLIST_URL, timeout=10).read()
 
-        decoded_list = decode_gfwlist(gfwlist_raw)
-        parsed_list = parse_gfwlist(decoded_list)
-        sanitised_list = sanitise_gfwlist(parsed_list)
+        final_list = sanitise_gfwlist(parse_gfwlist(decode_gfwlist(gfwlist_raw)))
 
         if args.custom:
-            final_list = add_custom(sanitised_list, args.custom)
-        else:
-            final_list = sanitised_list
+            final_list = add_custom(final_list, args.custom)
 
         with open(args.output, 'w') as fh:
             for line in final_list:
