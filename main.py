@@ -23,33 +23,29 @@ TLDLIST_URL = \
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument(
-        '-c',
-        '--custom',
+        '-c', '--custom',
         required=False,
         dest='custom',
-        help='Optional argument for local custom domain list',
+        help='optional argument for local custom domain list',
         metavar='CUSTOM.CONF')
     parser.add_argument(
-        '-i',
-        '--input',
+        '-i', '--input',
         required=False,
         dest='input',
-        help='Optional argument for local GFWList file (base64 encoded)',
+        help='optional argument for local GFWList file (base64 encoded)',
         metavar='GFWLIST')
     parser.add_argument(
-        '-o',
-        '--output',
+        '-o', '--output',
         required=False,
         dest='output',
         default='surge.conf',
-        help='Optional argument for Surge config output, default is surge.conf',
+        help='optional argument for Surge config output, default is surge.conf',
         metavar='SURGE.CONF')
     parser.add_argument(
-        '-t',
-        '--tld',
+        '-t', '--tld',
         required=False,
         dest='tld',
-        help='Optional argument for updating top domain list',
+        help='optional argument for updating top domain list',
         action='store_true')
     return parser.parse_args()
 
@@ -57,46 +53,43 @@ def parse_args():
 def decode_gfwlist(raw):
     '''Return decoded GFWList using base64'''
     try:
-        return base64.b64decode(raw)
+        return base64.b64decode(raw).decode('utf-8').splitlines()
     except:
-        return raw
+        return raw.splitlines()
 
 
 def parse_gfwlist(content):
     '''Parse GFWList line by line'''
-    gfw_list = content.splitlines()
     parsed_list = []
 
-    for item in gfw_list:
-        i = bytes.decode(item)
-
+    for item in content:
         # Preprocess
-        if i.find('.*') >= 0:
+        if item.find('.*') >= 0:
             continue
-        if i.find('*.') >= 0:
-            i = re.sub(r'^.+\*\.', '', i)
-        if i.find('*') >= 0:
-            i = i.replace('*', '')
-        if i.find('https://') >= 0:
-            i = i.replace('https://', '')
-        if i.find('http://') >= 0:
-            i = i.replace('http://', '')
-        if i.find('/') >= 0:
-            i = i[:i.index('/')]
-        if i.find('www.', 0, 6) >= 0:
-            i = i.replace('www.', '', 1)
+        if item.find('*.') >= 0:
+            item = re.sub(r'^.+\*\.', '', item)
+        if item.find('*') >= 0:
+            item = item.replace('*', '')
+        if item.find('https://') >= 0:
+            item = item.replace('https://', '')
+        if item.find('http://') >= 0:
+            item = item.replace('http://', '')
+        if item.find('/') >= 0:
+            item = item[:item.index('/')]
+        if item.find('www.', 0, 6) >= 0:
+            item = item.replace('www.', '', 1)
 
         # Parse
-        if i.startswith('!') or i.startswith('[') or i.startswith('@'):
+        if item.startswith('!') or item.startswith('[') or item.startswith('@'):
             continue
-        elif i.startswith('||'):
-            parsed_list.append(i.lstrip('||'))
-        elif i.startswith('|'):
-            parsed_list.append(i.lstrip('|'))
-        elif i.startswith('.'):
-            parsed_list.append(i.lstrip('.'))
+        elif item.startswith('||'):
+            parsed_list.append(item.lstrip('||'))
+        elif item.startswith('|'):
+            parsed_list.append(item.lstrip('|'))
+        elif item.startswith('.'):
+            parsed_list.append(item.lstrip('.'))
         else:
-            parsed_list.append(i)
+            parsed_list.append(item)
 
     return parsed_list
 
@@ -130,13 +123,12 @@ def add_custom(content, custom):
 
 
 def update_tld(content):
-    '''Remove comments from TLD list'''
-    tld_byte_list = content.splitlines()
-    tld_list = []
-    for item in tld_byte_list:
-        i = bytes.decode(item)
-        if not (i.startswith('#') or '-' in i):
-            tld_list.append(i)
+    '''Remove comments and XN--* domains from TLD list'''
+    tld_list = content.decode('utf-8').splitlines()
+    tld_list.pop(0)
+    for item in reversed(tld_list):
+        if item.startswith('XN--'):
+            tld_list.remove(item)
 
     with open('tld.txt', 'w') as fh:
         for line in tld_list:
