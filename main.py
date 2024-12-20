@@ -105,7 +105,7 @@ def sanitise_gfwlist(content):
         if (domain_suffix in tld_list) and (item not in sanitised_list):
             sanitised_list.append(item)
 
-    return sorted(sanitised_list)
+    return sanitised_list
 
 
 def add_custom(content, custom):
@@ -119,7 +119,7 @@ def add_custom(content, custom):
             print('Ignored duplicate domain in custom rule: %s' % item)
 
     complete_list = content + custom_list
-    return sorted(complete_list)
+    return complete_list
 
 
 def update_tld(content):
@@ -158,7 +158,7 @@ def main():
             final_list = add_custom(final_list, args.custom)
 
         with open(args.output, 'w') as fh:
-            for line in final_list:
+            for line in sorted(final_list):
                 fh.write('.' + line + '\n')
 
 
