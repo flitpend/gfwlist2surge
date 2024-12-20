@@ -1,0 +1,29 @@
+name: Update surge.conf weekly
+
+on:
+  schedule:
+    - cron: '0 1 * * 1'  # Runs every Monday at 1am
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Run script
+        run: |
+          python3 main.py -c custom
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Update gfwlist [automated]"
+            git push
+          fi
