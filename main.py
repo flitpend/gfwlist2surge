@@ -54,7 +54,7 @@ def decode_gfwlist(raw):
     '''Return decoded GFWList using base64'''
     try:
         return base64.b64decode(raw).decode('utf-8').splitlines()
-    except:
+    except base64.binascii.Error:
         return raw.splitlines()
 
 
@@ -66,30 +66,16 @@ def parse_gfwlist(content):
         # Preprocess
         if item.find('.*') >= 0:
             continue
-        if item.find('*.') >= 0:
-            item = re.sub(r'^.+\*\.', '', item)
-        if item.find('*') >= 0:
-            item = item.replace('*', '')
-        if item.find('https://') >= 0:
-            item = item.replace('https://', '')
-        if item.find('http://') >= 0:
-            item = item.replace('http://', '')
-        if item.find('/') >= 0:
-            item = item[:item.index('/')]
-        if item.find('www.', 0, 6) >= 0:
-            item = item.replace('www.', '', 1)
-
-        # Parse
         if item.startswith('!') or item.startswith('[') or item.startswith('@'):
             continue
-        elif item.startswith('||'):
-            parsed_list.append(item.lstrip('||'))
-        elif item.startswith('|'):
-            parsed_list.append(item.lstrip('|'))
-        elif item.startswith('.'):
-            parsed_list.append(item.lstrip('.'))
-        else:
-            parsed_list.append(item)
+
+        item = item.replace('https://', '').replace('http://', '').replace('*', '').replace('www.', '', 1).replace('|', '').lstrip('.')
+
+        if item.find('/') >= 0:
+            item = item[:item.index('/')]
+
+        # Parse
+        parsed_list.append(item)
 
     return parsed_list
 
@@ -100,6 +86,7 @@ def sanitise_gfwlist(content):
         tld_list = fh.read().lower().splitlines()
 
     sanitised_list = []
+
     for item in content:
         domain_suffix = item.split('.')[-1]
         if (domain_suffix in tld_list) and (item not in sanitised_list):
