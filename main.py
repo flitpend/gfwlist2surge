@@ -64,9 +64,7 @@ def parse_gfwlist(content):
 
     for item in content:
         # Preprocess
-        if item.find('.*') >= 0:
-            continue
-        if item.startswith('!') or item.startswith('[') or item.startswith('@'):
+        if item.find('.*') >= 0 or item.startswith('!') or item.startswith('[') or item.startswith('@'):
             continue
 
         item = item.replace('https://', '').replace('http://', '').replace('*', '').replace('www.', '', 1).replace('|', '').lstrip('.')
