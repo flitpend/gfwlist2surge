@@ -11,8 +11,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 __all__ = ['main']
 
-GFWLIST_URL = 'https://gitlab.com/gfwlist/gfwlist/raw/master/gfwlist.txt'
-# GFWLIST_URL = 'https://raw.githubusercontent.com/gfwlist/gfwlist/refs/heads/master/gfwlist.txt'
+GFWLIST_URL = 'https://raw.githubusercontent.com/gfwlist/gfwlist/refs/heads/master/gfwlist.txt'
+# GFWLIST_URL = 'https://gitlab.com/gfwlist/gfwlist/raw/master/gfwlist.txt'
 # GFWLIST_URL = 'https://bitbucket.org/gfwlist/gfwlist/raw/HEAD/gfwlist.txt'
 # GFWLIST_URL = 'https://pagure.io/gfwlist/raw/master/f/gfwlist.txt'
 
