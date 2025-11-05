@@ -9,8 +9,6 @@ from argparse import ArgumentParser
 # Logging format
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-__all__ = ['main']
-
 GFWLIST_URL = 'https://raw.githubusercontent.com/gfwlist/gfwlist/refs/heads/master/gfwlist.txt'
 # GFWLIST_URL = 'https://gitlab.com/gfwlist/gfwlist/raw/master/gfwlist.txt'
 # GFWLIST_URL = 'https://bitbucket.org/gfwlist/gfwlist/raw/HEAD/gfwlist.txt'
@@ -53,9 +51,20 @@ def decode_gfwlist(raw):
     '''Return decoded GFWList using base64'''
     try:
         return base64.b64decode(raw).decode('utf-8').splitlines()
-    except base64.binascii.Error:
+    except (base64.binascii.Error, UnicodeDecodeError, TypeError):
         logging.warning("Failed to decode GFWList using base64, using raw content.")
         return raw.splitlines()
+
+
+def clean_domain(item):
+    '''Helper function to clean domain strings'''
+    item = item.replace('https://', '')
+    item = item.replace('http://', '')
+    item = item.replace('*', '')
+    item = item.replace('www.', '', 1)
+    item = item.replace('|', '')
+    item = item.lstrip('.')
+    return item
 
 
 def parse_gfwlist(content):
@@ -67,7 +76,7 @@ def parse_gfwlist(content):
         if item.find('.*') >= 0 or item.startswith('!') or item.startswith('[') or item.startswith('@'):
             continue
 
-        item = item.replace('https://', '').replace('http://', '').replace('*', '').replace('www.', '', 1).replace('|', '').lstrip('.')
+        item = clean_domain(item)
 
         if item.find('/') >= 0:
             item = item[:item.index('/')]
@@ -96,16 +105,19 @@ def sanitise_gfwlist(content):
 def add_custom(content, custom):
     '''Add custom rules'''
     try:
-        with open(custom, 'r') as fh:
+        with open(custom, 'r', encoding='utf-8') as fh:
             custom_list = fh.read().splitlines()
     except FileNotFoundError:
         logging.error(f"Custom rule file {custom} not found.")
         return content
+    filtered_custom_list = []
+    content_set = set(content)
     for item in custom_list:
-        if item in content:
-            custom_list.remove(item)
+        if item in content_set:
             logging.info(f"Ignored duplicate domain in custom rule: {item}")
-    complete_list = content + custom_list
+        else:
+            filtered_custom_list.append(item)
+    complete_list = content + filtered_custom_list
     return complete_list
 
 
@@ -125,9 +137,7 @@ def update_tld(content):
         return
     tld_list = content.decode('utf-8').splitlines()
     tld_list.pop(0)
-    for item in reversed(tld_list):
-        if item.startswith('XN--'):
-            tld_list.remove(item)
+    tld_list = [item for item in tld_list if not item.startswith('XN--')]
     try:
         with open('tld.txt', 'w') as fh:
             for line in tld_list:
