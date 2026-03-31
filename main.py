@@ -2,6 +2,7 @@
 
 import base64
 import logging
+import re
 import urllib.request
 from pathlib import Path
 from argparse import ArgumentParser
@@ -58,11 +59,11 @@ def decode_gfwlist(raw):
 
 def clean_domain(item):
     '''Helper function to clean domain strings'''
+    item = item.replace('|', '')
     item = item.replace('https://', '')
     item = item.replace('http://', '')
-    item = item.replace('*', '')
     item = item.replace('www.', '', 1)
-    item = item.replace('|', '')
+    item = re.sub(r"^.*\*\d*\.", "", item)
     item = item.lstrip('.')
     return item
 
@@ -73,7 +74,7 @@ def parse_gfwlist(content):
 
     for item in content:
         # Skip comments and disabled domains
-        if item.find('.*') >= 0 or item.startswith('!') or item.startswith('[') or item.startswith('@'):
+        if item.find('.*') >= 0 or item.startswith('!') or item.startswith('[') or item.startswith('@') or item.startswith('/^'):
             continue
 
         item = clean_domain(item)
