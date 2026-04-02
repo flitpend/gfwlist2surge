@@ -57,29 +57,29 @@ def decode_gfwlist(raw):
         return raw.splitlines()
 
 
-def clean_domain(item):
+def clean_domain(domain):
     '''Helper function to clean domain strings'''
-    item = item.replace('|', '')
-    item = item.replace('https://', '')
-    item = item.replace('http://', '')
-    item = item.replace('www.', '', 1)
-    item = re.sub(r"^.*\*\d*\.", "", item)
-    item = re.sub(r"/.*$", "", item)
-    item = item.lstrip('.')
-    return item
+    domain = domain.replace('|', '')
+    domain = domain.replace('https://', '')
+    domain = domain.replace('http://', '')
+    domain = domain.replace('www.', '', 1)
+    domain = re.sub(r"^.*\*\d*\.", "", domain)
+    domain = re.sub(r"/.*$", "", domain)
+    domain = domain.lstrip('.')
+    return domain
 
 
 def parse_gfwlist(content):
     '''Parse GFWList line by line'''
     parsed_list = []
 
-    for item in content:
+    for domain in content:
         # Skip comments and disabled domains
-        if item.find('.*') >= 0 or item.startswith('!') or item.startswith('[') or item.startswith('@'):
+        if domain.startswith('!') or domain.startswith('[') or domain.startswith('@'):
             continue
 
-        item = clean_domain(item)
-        parsed_list.append(item)
+        domain = clean_domain(domain)
+        parsed_list.append(domain)
 
     return parsed_list
 
@@ -93,10 +93,10 @@ def sanitise_gfwlist(content):
         logging.error("tld.txt file not found.")
         return []
     sanitised_list = []
-    for item in content:
-        domain_suffix = item.split('.')[-1]
-        if (domain_suffix in tld_list) and (item not in sanitised_list):
-            sanitised_list.append(item)
+    for domain in content:
+        domain_suffix = domain.split('.')[-1]
+        if (domain_suffix in tld_list) and (domain not in sanitised_list):
+            sanitised_list.append(domain)
     return sanitised_list
 
 
@@ -110,11 +110,11 @@ def add_custom(content, custom):
         return content
     filtered_custom_list = []
     content_set = set(content)
-    for item in custom_list:
-        if item in content_set:
-            logging.info(f"Ignored duplicate domain in custom rule: {item}")
+    for domain in custom_list:
+        if domain in content_set:
+            logging.info(f"Ignored duplicate domain in custom rule: {domain}")
         else:
-            filtered_custom_list.append(item)
+            filtered_custom_list.append(domain)
     complete_list = content + filtered_custom_list
     return complete_list
 
@@ -135,7 +135,7 @@ def update_tld(content):
         return
     tld_list = content.decode('utf-8').splitlines()
     tld_list.pop(0)
-    tld_list = [item for item in tld_list if not item.startswith('XN--')]
+    tld_list = [domain for domain in tld_list if not domain.startswith('XN--')]
     try:
         with open('tld.txt', 'w') as fh:
             for line in tld_list:
