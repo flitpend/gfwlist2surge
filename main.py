@@ -64,6 +64,7 @@ def clean_domain(item):
     item = item.replace('http://', '')
     item = item.replace('www.', '', 1)
     item = re.sub(r"^.*\*\d*\.", "", item)
+    item = re.sub(r"/.*$", "", item)
     item = item.lstrip('.')
     return item
 
@@ -74,14 +75,10 @@ def parse_gfwlist(content):
 
     for item in content:
         # Skip comments and disabled domains
-        if item.find('.*') >= 0 or item.startswith('!') or item.startswith('[') or item.startswith('@') or item.startswith('/^'):
+        if item.find('.*') >= 0 or item.startswith('!') or item.startswith('[') or item.startswith('@'):
             continue
 
         item = clean_domain(item)
-
-        if item.find('/') >= 0:
-            item = item[:item.index('/')]
-
         parsed_list.append(item)
 
     return parsed_list
