@@ -53,7 +53,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def decode_gfwlist(raw):
+def b64decode_gfwlist(raw):
     '''Return decoded GFWList using base64'''
     try:
         return base64.b64decode(raw).decode('utf-8')
@@ -179,9 +179,9 @@ def main():
                     return
 
         if args.plain:
-            final_list = sanitise_gfwlist(parse_gfwlist(gfwlist_raw.splitlines()))
+            final_list = sanitise_gfwlist(parse_gfwlist(gfwlist_raw.decode('utf-8').splitlines()))
         else:
-            final_list = sanitise_gfwlist(parse_gfwlist(decode_gfwlist(gfwlist_raw).splitlines()))
+            final_list = sanitise_gfwlist(parse_gfwlist(b64decode_gfwlist(gfwlist_raw).splitlines()))
 
         if args.custom:
             final_list = add_custom(final_list, args.custom)
