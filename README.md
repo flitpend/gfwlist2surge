@@ -10,6 +10,8 @@ Usage: main.py [-c CUSTOM.CONF] [-i GFWLIST] [-o SURGE.CONF] [-t]
         Optional argument for local GFWList file (base64 encoded), default is gfwlist
     -o SURGE.CONF, --output SURGE.CONF
         Optional argument for Surge config output, default is surge.conf
+    -p, --plain
+        Optional argument for using plain text GFWList over base64 encoded list
     -t, --tld
         Optional argument for updating top domain list
 ```
@@ -48,9 +50,9 @@ python3 main.py -c custom.conf
 <br>
 <br>
 
-Example 3: merge local GFWList (base64 encoded) and your custom domain list, then convert to yourfilename.conf
+Example 3: merge local GFWList (plain text, not base64 encoded) and your custom domain list, then convert to yourfilename.conf
 ```sh
-python3 main.py -i gfwlist.txt -c custom.conf -o yourfilename.conf
+python3 main.py -p -i gfwlist.txt -c custom.conf -o yourfilename.conf
 ```
 
 <br>

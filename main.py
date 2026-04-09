@@ -11,10 +11,9 @@ from argparse import ArgumentParser
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 GFWLIST_URL = 'https://raw.githubusercontent.com/gfwlist/gfwlist/refs/heads/master/gfwlist.txt'
-# GFWLIST_URL = 'https://gitlab.com/gfwlist/gfwlist/raw/master/gfwlist.txt'
-# GFWLIST_URL = 'https://bitbucket.org/gfwlist/gfwlist/raw/HEAD/gfwlist.txt'
-# GFWLIST_URL = 'https://pagure.io/gfwlist/raw/master/f/gfwlist.txt'
-
+# GFWLIST_URL = 'http://repo.or.cz/gfwlist.git/blob_plain/HEAD:/gfwlist.txt'
+# GFWLIST_URL = 'https://raw.githubusercontent.com/gfwlist/tinylist/refs/heads/master/tinylist.txt'
+GFWLIST_PLAIN = 'https://raw.githubusercontent.com/gfwlist/gfwlist/refs/heads/master/list.txt'
 TLDLIST_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt'
 
 
@@ -40,6 +39,12 @@ def parse_args():
         help='optional argument for Surge config output, default is surge.conf',
         metavar='SURGE.CONF')
     parser.add_argument(
+        '-p', '--plain',
+        required=False,
+        dest='plain',
+        help='optional argument for using plain text GFWList over base64 encoded list',
+        action='store_true')
+    parser.add_argument(
         '-t', '--tld',
         required=False,
         dest='tld',
@@ -51,10 +56,10 @@ def parse_args():
 def decode_gfwlist(raw):
     '''Return decoded GFWList using base64'''
     try:
-        return base64.b64decode(raw).decode('utf-8').splitlines()
+        return base64.b64decode(raw).decode('utf-8')
     except (base64.binascii.Error, UnicodeDecodeError, TypeError):
         logging.warning("Failed to decode GFWList using base64, using raw content.")
-        return raw.splitlines()
+        return raw
 
 
 def clean_domain(domain):
@@ -161,13 +166,23 @@ def main():
             except FileNotFoundError:
                 logging.error(f"Input file {args.input} not found.")
                 return
-        else:
-            logging.info(f"Downloading gfwlist from: {GFWLIST_URL}")
-            gfwlist_raw = download_file(GFWLIST_URL)
-            if gfwlist_raw is None:
-                return
 
-        final_list = sanitise_gfwlist(parse_gfwlist(decode_gfwlist(gfwlist_raw)))
+        else:
+            if args.plain:
+                logging.info(f"Downloading gfwlist from: {GFWLIST_PLAIN}")
+                gfwlist_raw = download_file(GFWLIST_PLAIN)
+                if gfwlist_raw is None:
+                    return
+            else:
+                logging.info(f"Downloading gfwlist from: {GFWLIST_URL}")
+                gfwlist_raw = download_file(GFWLIST_URL)
+                if gfwlist_raw is None:
+                    return
+
+        if args.plain:
+            final_list = sanitise_gfwlist(parse_gfwlist(gfwlist_raw.splitlines()))
+        else:
+            final_list = sanitise_gfwlist(parse_gfwlist(decode_gfwlist(gfwlist_raw).splitlines()))
 
         if args.custom:
             final_list = add_custom(final_list, args.custom)
