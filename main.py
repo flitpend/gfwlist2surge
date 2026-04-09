@@ -169,7 +169,7 @@ def main():
         else:
             if args.plain:
                 logging.info(f"Downloading gfwlist from: {GFWLIST_PLAIN}")
-                gfwlist_raw = download_file(GFWLIST_PLAIN)
+                gfwlist_raw = download_file(GFWLIST_PLAIN).decode('utf-8')
                 if gfwlist_raw is None:
                     return
             else:
@@ -179,7 +179,7 @@ def main():
                     return
 
         if args.plain:
-            final_list = sanitise_gfwlist(parse_gfwlist(gfwlist_raw.decode('utf-8').splitlines()))
+            final_list = sanitise_gfwlist(parse_gfwlist(gfwlist_raw.splitlines()))
         else:
             final_list = sanitise_gfwlist(parse_gfwlist(b64decode_gfwlist(gfwlist_raw).splitlines()))
 
