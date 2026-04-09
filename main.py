@@ -64,13 +64,15 @@ def decode_gfwlist(raw):
 
 def clean_domain(domain):
     '''Helper function to clean domain strings'''
-    domain = domain.replace('|', '')
-    domain = domain.replace('https://', '')
-    domain = domain.replace('http://', '')
-    domain = domain.replace('www.', '', 1)
-    domain = re.sub(r"^.*\*\d*\.", "", domain)
-    domain = re.sub(r"/.*$", "", domain)
+    domain = re.sub(r"^[!@[].*", "", domain)    # Comments and disabled domains
+    domain = domain.replace('|', '')            # Legit domains
+    domain = domain.replace('https://', '')     # Domain headers
+    domain = domain.replace('http://', '')      # Domain headers
+    domain = domain.replace('www.', '', 1)      # Domain headers
+    domain = re.sub(r"^.*\*\d*\.", "", domain)  # *. subdomains
+    domain = re.sub(r"/.*$", "", domain)        # Anything after the 1st path separator
     domain = domain.lstrip('.')
+    domain = domain.strip()
     return domain
 
 
@@ -79,18 +81,15 @@ def parse_gfwlist(content):
     parsed_list = []
 
     for domain in content:
-        # Skip comments and disabled domains
-        if domain.startswith('!') or domain.startswith('[') or domain.startswith('@'):
-            continue
-
         domain = clean_domain(domain)
-        parsed_list.append(domain)
+        if domain:
+            parsed_list.append(domain)
 
     return parsed_list
 
 
 def sanitise_gfwlist(content):
-    '''Sanitise and sort GFWList'''
+    '''Filter and sort GFWList, remove duplicates'''
     try:
         with open('tld.txt', 'r') as fh:
             tld_list = fh.read().lower().splitlines()
@@ -114,9 +113,9 @@ def add_custom(content, custom):
         logging.error(f"Custom rule file {custom} not found.")
         return content
     filtered_custom_list = []
-    content_set = set(content)
+    domain_set = set(content)
     for domain in custom_list:
-        if domain in content_set:
+        if domain in domain_set:
             logging.info(f"Ignored duplicate domain in custom rule: {domain}")
         else:
             filtered_custom_list.append(domain)
