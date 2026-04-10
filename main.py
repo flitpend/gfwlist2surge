@@ -4,8 +4,9 @@ import base64
 import logging
 import re
 import urllib.request
-from pathlib import Path
 from argparse import ArgumentParser
+from pathlib import Path
+from typing import List, Optional
 
 # Logging format
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -53,13 +54,13 @@ def parse_args():
     return parser.parse_args()
 
 
-def clean_domain(domain):
+def clean_domain(domain: str) -> Optional[str]:
     '''Helper function to clean domain strings'''
     domain = re.sub(r"^[!@[].*", "", domain)    # Comments and disabled domains
     domain = domain.replace('|', '')            # Legit domains
-    domain = domain.replace('https://', '')     # Domain headers
-    domain = domain.replace('http://', '')      # Domain headers
-    domain = domain.replace('www.', '', 1)      # Domain headers
+    domain = domain.replace('https://', '')     # Headers
+    domain = domain.replace('http://', '')      # Headers
+    domain = domain.replace('www.', '', 1)      # Headers
     domain = re.sub(r"^.*\*\d*\.", "", domain)  # *. subdomains
     domain = re.sub(r"/.*$", "", domain)        # Anything after the 1st path separator
     domain = domain.lstrip('.')
@@ -67,7 +68,7 @@ def clean_domain(domain):
     return domain
 
 
-def parse_gfwlist(content):
+def parse_gfwlist(content: List[str]) -> List[str]:
     '''Parse GFWList line by line'''
     parsed_list = []
 
@@ -79,7 +80,7 @@ def parse_gfwlist(content):
     return parsed_list
 
 
-def sanitise_gfwlist(content):
+def sanitize_gfwlist(content: List[str]) -> List[str]:
     '''Filter and sort GFWList, remove duplicates'''
     try:
         with open('tld.txt', 'r') as fh:
@@ -87,15 +88,19 @@ def sanitise_gfwlist(content):
     except FileNotFoundError:
         logging.error("tld.txt file not found.")
         return []
-    sanitised_list = []
+
+    sanitized_list = []
+    seen = set()
+
     for domain in content:
-        domain_suffix = domain.split('.')[-1]
-        if (domain_suffix in tld_list) and (domain not in sanitised_list):
-            sanitised_list.append(domain)
-    return sanitised_list
+        domain_suffix = domain.rsplit('.', 1)[-1]
+        if (domain_suffix in tld_list) and (domain not in seen):
+            sanitized_list.append(domain)
+            seen.add(domain)
+    return sanitized_list
 
 
-def add_custom(content, custom):
+def add_custom(content: List[str], custom: str) -> List[str]:
     '''Add custom rules'''
     try:
         with open(custom, 'r', encoding='utf-8') as fh:
@@ -114,7 +119,7 @@ def add_custom(content, custom):
     return complete_list
 
 
-def download_file(url):
+def download_file(url: str) -> Optional[bytes]:
     '''Download files'''
     try:
         response = urllib.request.urlopen(url, timeout=10)
@@ -124,7 +129,7 @@ def download_file(url):
         return None
 
 
-def update_tld(content):
+def update_tld(content: Optional[bytes]) -> None:
     '''Remove comments and XN--* domains from TLD list'''
     if content is None:
         return
@@ -139,7 +144,7 @@ def update_tld(content):
         logging.error(f"Failed to write to tld.txt: {e}")
 
 
-def main():
+def main() -> None:
     args = parse_args()
     local_tld = Path('./tld.txt')
 
@@ -152,7 +157,10 @@ def main():
         if args.input:
             try:
                 with open(args.input, 'r') as fh:
-                    gfwlist_raw = fh.read()
+                    if args.plain:
+                        gfwlist_raw = fh.read()
+                    else:
+                        gfwlist_raw = base64.b64decode(fh.read()).decode('utf-8')
             except FileNotFoundError:
                 logging.error(f"Input file {args.input} not found.")
                 return
@@ -169,7 +177,7 @@ def main():
                 if gfwlist_raw is None:
                     return
 
-        final_list = sanitise_gfwlist(parse_gfwlist(gfwlist_raw.splitlines()))
+        final_list = sanitize_gfwlist(parse_gfwlist(gfwlist_raw.splitlines()))
 
         if args.custom:
             final_list = add_custom(final_list, args.custom)
