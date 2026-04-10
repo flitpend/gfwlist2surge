@@ -53,15 +53,6 @@ def parse_args():
     return parser.parse_args()
 
 
-def b64decode_gfwlist(raw):
-    '''Return decoded GFWList using base64'''
-    try:
-        return base64.b64decode(raw).decode('utf-8')
-    except (base64.binascii.Error, UnicodeDecodeError, TypeError):
-        logging.warning("Failed to decode GFWList using base64, using raw content.")
-        return raw
-
-
 def clean_domain(domain):
     '''Helper function to clean domain strings'''
     domain = re.sub(r"^[!@[].*", "", domain)    # Comments and disabled domains
@@ -168,20 +159,17 @@ def main():
 
         else:
             if args.plain:
-                logging.info(f"Downloading gfwlist from: {GFWLIST_PLAIN}")
+                logging.info(f"Downloading plain text gfwlist from: {GFWLIST_PLAIN}")
                 gfwlist_raw = download_file(GFWLIST_PLAIN).decode('utf-8')
                 if gfwlist_raw is None:
                     return
             else:
-                logging.info(f"Downloading gfwlist from: {GFWLIST_URL}")
-                gfwlist_raw = download_file(GFWLIST_URL)
+                logging.info(f"Downloading base64 encoded gfwlist from: {GFWLIST_URL}")
+                gfwlist_raw = base64.b64decode(download_file(GFWLIST_URL)).decode('utf-8')
                 if gfwlist_raw is None:
                     return
 
-        if args.plain:
-            final_list = sanitise_gfwlist(parse_gfwlist(gfwlist_raw.splitlines()))
-        else:
-            final_list = sanitise_gfwlist(parse_gfwlist(b64decode_gfwlist(gfwlist_raw).splitlines()))
+        final_list = sanitise_gfwlist(parse_gfwlist(gfwlist_raw.splitlines()))
 
         if args.custom:
             final_list = add_custom(final_list, args.custom)
@@ -190,6 +178,7 @@ def main():
             with open(args.output, 'w') as fh:
                 for line in sorted(final_list):
                     fh.write('.' + line + '\n')
+            logging.info(f"Generated {len(final_list)} domains in {args.output}")
         except IOError as e:
             logging.error(f"Failed to write to output file {args.output}: {e}")
 
