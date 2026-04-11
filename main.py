@@ -164,18 +164,21 @@ def main() -> None:
             except FileNotFoundError:
                 logging.error(f"Input file {args.input} not found.")
                 return
-
         else:
             if args.plain:
                 logging.info(f"Downloading plain text gfwlist from: {GFWLIST_PLAIN}")
-                gfwlist_raw = download_file(GFWLIST_PLAIN).decode('utf-8')
+                gfwlist_raw = download_file(GFWLIST_PLAIN)
                 if gfwlist_raw is None:
                     return
+                else:
+                    gfwlist_raw = gfwlist_raw.decode('utf-8')
             else:
                 logging.info(f"Downloading base64 encoded gfwlist from: {GFWLIST_URL}")
-                gfwlist_raw = base64.b64decode(download_file(GFWLIST_URL)).decode('utf-8')
+                gfwlist_raw = download_file(GFWLIST_URL)
                 if gfwlist_raw is None:
                     return
+                else:
+                    gfwlist_raw = base64.b64decode(gfwlist_raw.decode('utf-8'))
 
         final_list = sanitize_gfwlist(parse_gfwlist(gfwlist_raw.splitlines()))
 
