@@ -178,7 +178,7 @@ def main() -> None:
                 if gfwlist_raw is None:
                     return
                 else:
-                    gfwlist_raw = base64.b64decode(gfwlist_raw.decode('utf-8'))
+                    gfwlist_raw = base64.b64decode(gfwlist_raw).decode('utf-8')
 
         final_list = sanitize_gfwlist(parse_gfwlist(gfwlist_raw.splitlines()))
 
