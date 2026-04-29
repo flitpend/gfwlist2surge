@@ -1,34 +1,40 @@
 # gfwlist2surge
-A simple tool to convert GFWList into surge config expressions.
+A simple tool to convert GFWList into surge config and clash payload text.
 
 ```
-Usage: main.py [-c CUSTOM.CONF] [-i GFWLIST] [-o SURGE.CONF] [-t]
+Usage: main.py [-h] [-c CUSTOM.CONF] [-cl] [-i GFWLIST] [-o FILENAME] [-p] [-t]
 
-    -c CUSTOM.CONF, --custom CUSTOM.CONF
-        Optional argument for your own local custom domain list
-    -i GFWLIST, --input GFWLIST
-        Optional argument for local GFWList file (base64 encoded), default is gfwlist
-    -o SURGE.CONF, --output SURGE.CONF
-        Optional argument for Surge config output, default is surge.conf
-    -p, --plain
-        Optional argument for using plain text GFWList over base64 encoded list
-    -t, --tld
-        Optional argument for updating top domain list
+  -h, --help            show this help message and exit
+  -c, --custom CUSTOM.CONF
+                        optional argument for local custom domain list
+  -cl, --clash          optional argument for clash payload output, default is clash.txt
+  -i, --input GFWLIST   optional argument for local GFWList file (base64 encoded)
+  -o, --output FILENAME
+                        optional argument for output file name, default is surge.conf, or clash.txt if -cl is used
+  -p, --plain           optional argument for using plain text GFWList over base64 encoded list
+  -t, --tld             optional argument for updating top domain list
 ```
 
-Automatically combine GFWList with your custom.conf (if provided), and generate surge.conf with uniquified and sorted list in the following format:
-
-```
-.domain0.com
-.domain1.com
-.domain2.com
-.domain3.com
-```
-
+Automatically combine GFWList with your custom.conf (if provided), and generate surge.conf with uniquified and sorted list.
 You may add a one liner in Surge config file to quickly add these domains to your rules:
 
 ```
 DOMAIN-SET,https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/surge.conf,<your_proxy>
+```
+
+Alternatively, if you use Clash, add the following lines to your profile:
+```
+rule-providers:
+  gfwlist:
+    type: http
+    url: "https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/clash.txt"
+    interval: 86400
+    proxy: <your_proxy>
+    behavior: domain
+    size-limit: 0
+
+rules:
+  - RULE-SET,gfwlist,<your_proxy>
 ```
 
 <br>
@@ -50,15 +56,23 @@ python3 main.py -c custom.conf
 <br>
 <br>
 
-Example 3: merge local GFWList (plain text, not base64 encoded) and your custom domain list, then convert to yourfilename.conf
+Example 3: merge GFWList and your custom domain list, then convert to clash.txt
 ```sh
-python3 main.py -p -i gfwlist.txt -c custom.conf -o yourfilename.conf
+python3 main.py -c custom.conf -cl
 ```
 
 <br>
 <br>
 
-Example 4: update tld.txt (top level domain)
+Example 4: merge local GFWList (plain text, not base64 encoded) and your custom domain list, then convert to yourfilename.conf
+```sh
+python3 main.py -p -i list.txt -c custom.conf -o yourfilename.conf
+```
+
+<br>
+<br>
+
+Example 5: update tld.txt (top level domain)
 ```sh
 python3 main.py -t
 ```
