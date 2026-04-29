@@ -3,6 +3,7 @@
 import base64
 import logging
 import re
+import urllib.error
 import urllib.request
 from argparse import ArgumentParser
 from pathlib import Path
@@ -27,6 +28,12 @@ def parse_args():
         help='optional argument for local custom domain list',
         metavar='CUSTOM.CONF')
     parser.add_argument(
+        '-cl', '--clash',
+        required=False,
+        dest='clash',
+        help='optional argument for clash payload output, default is clash.txt',
+        action='store_true')
+    parser.add_argument(
         '-i', '--input',
         required=False,
         dest='input',
@@ -36,9 +43,8 @@ def parse_args():
         '-o', '--output',
         required=False,
         dest='output',
-        default='surge.conf',
-        help='optional argument for Surge config output, default is surge.conf',
-        metavar='SURGE.CONF')
+        help='optional argument for output file name, default is surge.conf, or clash.txt if -cl is used',
+        metavar='FILENAME')
     parser.add_argument(
         '-p', '--plain',
         required=False,
@@ -184,11 +190,24 @@ def main() -> None:
 
         if args.custom:
             final_list = add_custom(final_list, args.custom)
+        
+        final_list = sorted(set(final_list))
+
+        if not args.output:
+            if args.clash:
+                args.output = 'clash.txt'
+            else:
+                args.output = 'surge.conf'
 
         try:
             with open(args.output, 'w') as fh:
-                for line in sorted(final_list):
-                    fh.write('.' + line + '\n')
+                if args.clash:
+                    fh.write('payload:\n')
+                    for line in final_list:
+                        fh.write('  - \'+.'+ line + '\'\n')
+                else:
+                    for line in final_list:
+                        fh.write('.' + line + '\n')
             logging.info(f"Generated {len(final_list)} domains in {args.output}")
         except IOError as e:
             logging.error(f"Failed to write to output file {args.output}: {e}")
