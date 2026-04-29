@@ -1,5 +1,5 @@
-# gfwlist2surge
-A simple tool to convert GFWList into surge config and clash payload text.
+# GFWList Surge and Clash config converter
+Automatically combine the latest GFWList or your local copy with your own custom.conf (if provided) as input files, and generate surge.conf or clash.txt as output file.
 
 ```
 Usage: main.py [-h] [-c CUSTOM.CONF] [-cl] [-i GFWLIST] [-o FILENAME] [-p] [-t]
@@ -15,7 +15,8 @@ Usage: main.py [-h] [-c CUSTOM.CONF] [-cl] [-i GFWLIST] [-o FILENAME] [-p] [-t]
   -t, --tld             optional argument for updating top domain list
 ```
 
-Automatically combine GFWList with your custom.conf (if provided), and generate surge.conf with uniquified and sorted list.
+## Client configuration
+
 You may add a one liner in Surge config file to quickly add these domains to your rules:
 
 ```
@@ -28,7 +29,7 @@ rule-providers:
   gfwlist:
     type: http
     url: "https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/clash.txt"
-    interval: 86400
+    interval: 604800
     proxy: <your_proxy>
     behavior: domain
     size-limit: 0
@@ -39,6 +40,8 @@ rules:
 
 <br>
 <br>
+
+## Usage examples
 
 Example 1: fetch GFWList and convert to surge.conf
 ```sh
@@ -64,7 +67,7 @@ python3 main.py -c custom.conf -cl
 <br>
 <br>
 
-Example 4: merge local GFWList (plain text, not base64 encoded) and your custom domain list, then convert to yourfilename.conf
+Example 4: merge local GFWList (plain text, not base64 encoded) and your custom domain list, then convert to yourfilename.conf for Surge
 ```sh
 python3 main.py -p -i list.txt -c custom.conf -o yourfilename.conf
 ```
@@ -72,7 +75,15 @@ python3 main.py -p -i list.txt -c custom.conf -o yourfilename.conf
 <br>
 <br>
 
-Example 5: update tld.txt (top level domain)
+Example 5: merge local GFWList (base64 encoded) and your custom domain list, then convert to yourfilename.txt for Clash
+```sh
+python3 main.py -i list.txt -c custom.conf -o yourfilename.txt -cl
+```
+
+<br>
+<br>
+
+Example 6: update tld.txt (top level domain)
 ```sh
 python3 main.py -t
 ```
