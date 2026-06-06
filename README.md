@@ -2,7 +2,7 @@
 This simple python script does the following:
 * Automatically download the latest GFWList, or use your local copy as input
 * Combine with your own custom domain list (if provided)
-* Generate surge.conf or clash.txt as output
+* Generate surge.conf or clash.yaml as output
 
 ```
 usage: main.py [-h] [-c CUSTOM.CONF] [-cl] [-i GFWLIST] [-o FILENAME] [-p] [-t]
@@ -11,11 +11,11 @@ optional arguments:
   -h, --help            show this help message and exit
   -c CUSTOM.CONF, --custom CUSTOM.CONF
                         optional argument for local custom domain list
-  -cl, --clash          optional argument for clash payload output, default is clash.txt
+  -cl, --clash          optional argument for clash payload output, default is clash.yaml
   -i GFWLIST, --input GFWLIST
                         optional argument for local GFWList file (base64 encoded)
   -o FILENAME, --output FILENAME
-                        optional argument for output file name, default is surge.conf, or clash.txt if -cl is used
+                        optional argument for output file name, default is surge.conf, or clash.yaml if -cl is used
   -p, --plain           optional argument for using plain text GFWList over base64 encoded list
   -t, --tld             optional argument for updating top domain list
 ```
@@ -33,7 +33,7 @@ Alternatively, if you use Clash, add the following section to your profile:
 rule-providers:
   gfwlist:
     type: http
-    url: "https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/clash.txt"
+    url: "https://raw.githubusercontent.com/flitpend/gfwlist2surge/master/clash.yaml"
     interval: 604800
     proxy: <your_proxy>
     behavior: domain
@@ -57,7 +57,7 @@ python3 main.py
 python3 main.py -c custom.conf
 ```
 
-3. Merge GFWList and your custom domain list, then convert to clash.txt
+3. Merge GFWList and your custom domain list, then convert to clash.yaml
 ```sh
 python3 main.py -c custom.conf -cl
 ```

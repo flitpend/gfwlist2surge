@@ -31,7 +31,7 @@ def parse_args():
         '-cl', '--clash',
         required=False,
         dest='clash',
-        help='optional argument for clash payload output, default is clash.txt',
+        help='optional argument for clash payload output, default is clash.yaml',
         action='store_true')
     parser.add_argument(
         '-i', '--input',
@@ -43,7 +43,7 @@ def parse_args():
         '-o', '--output',
         required=False,
         dest='output',
-        help='optional argument for output file name, default is surge.conf, or clash.txt if -cl is used',
+        help='optional argument for output file name, default is surge.conf, or clash.yaml if -cl is used',
         metavar='FILENAME')
     parser.add_argument(
         '-p', '--plain',
@@ -195,7 +195,7 @@ def main() -> None:
 
         if not args.output:
             if args.clash:
-                args.output = 'clash.txt'
+                args.output = 'clash.yaml'
             else:
                 args.output = 'surge.conf'
 
