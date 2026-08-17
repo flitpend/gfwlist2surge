@@ -140,7 +140,7 @@ def update_tld(content: bytes|None) -> None:
         return
     tld_list = content.decode('utf-8').splitlines()
     tld_list.pop(0)
-    tld_list = [domain for domain in tld_list if not domain.startswith('XN--')]
+    tld_list = '\n'.join([domain for domain in tld_list if not domain.startswith('XN--')])
     try:
         with open('tld.txt', 'w') as fh:
             fh.writelines(tld_list)
