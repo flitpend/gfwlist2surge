@@ -7,7 +7,6 @@ import urllib.error
 import urllib.request
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import List, Optional
 
 # Logging format
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -60,7 +59,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def clean_domain(domain: str) -> Optional[str]:
+def clean_domain(domain: str) -> str|None:
     '''Helper function to clean domain strings'''
     domain = re.sub(r"^[!@[].*", "", domain)    # Comments and disabled domains
     domain = domain.replace('|', '')            # Legit domains
@@ -74,7 +73,7 @@ def clean_domain(domain: str) -> Optional[str]:
     return domain
 
 
-def parse_gfwlist(content: List[str]) -> List[str]:
+def parse_gfwlist(content: list[str]) -> list[str]:
     '''Parse GFWList line by line'''
     parsed_list = []
 
@@ -86,7 +85,7 @@ def parse_gfwlist(content: List[str]) -> List[str]:
     return parsed_list
 
 
-def sanitize_gfwlist(content: List[str]) -> List[str]:
+def sanitize_gfwlist(content: list[str]) -> list[str]:
     '''Filter and sort GFWList, remove duplicates'''
     try:
         with open('tld.txt', 'r') as fh:
@@ -106,7 +105,7 @@ def sanitize_gfwlist(content: List[str]) -> List[str]:
     return sanitized_list
 
 
-def add_custom(content: List[str], custom: str) -> List[str]:
+def add_custom(content: list[str], custom: str) -> list[str]:
     '''Add custom rules'''
     try:
         with open(custom, 'r', encoding='utf-8') as fh:
@@ -125,7 +124,7 @@ def add_custom(content: List[str], custom: str) -> List[str]:
     return complete_list
 
 
-def download_file(url: str) -> Optional[bytes]:
+def download_file(url: str) -> bytes|None:
     '''Download files'''
     try:
         response = urllib.request.urlopen(url, timeout=10)
@@ -135,7 +134,7 @@ def download_file(url: str) -> Optional[bytes]:
         return None
 
 
-def update_tld(content: Optional[bytes]) -> None:
+def update_tld(content: bytes|None) -> None:
     '''Remove comments and XN--* domains from TLD list'''
     if content is None:
         return
@@ -144,8 +143,7 @@ def update_tld(content: Optional[bytes]) -> None:
     tld_list = [domain for domain in tld_list if not domain.startswith('XN--')]
     try:
         with open('tld.txt', 'w') as fh:
-            for line in tld_list:
-                fh.write(line + '\n')
+            fh.writelines(tld_list)
     except IOError as e:
         logging.error(f"Failed to write to tld.txt: {e}")
 
@@ -190,7 +188,7 @@ def main() -> None:
 
         if args.custom:
             final_list = add_custom(final_list, args.custom)
-        
+
         final_list = sorted(set(final_list))
 
         if not args.output:
