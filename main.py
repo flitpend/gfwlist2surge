@@ -145,7 +145,7 @@ def update_tld(content: bytes|None) -> None:
     try:
         with open('tld.txt', 'w') as fh:
             fh.writelines(tld_list)
-    except IOError as e:
+    except OSError as e:
         logger.error(f"Failed to write to tld.txt: {e}")
 
 
@@ -208,7 +208,7 @@ def main() -> None:
                     for line in final_list:
                         fh.write('.' + line + '\n')
             logger.info(f"Generated {len(final_list)} domains in {args.output}")
-        except IOError as e:
+        except OSError as e:
             logger.error(f"Failed to write to output file {args.output}: {e}")
 
 
