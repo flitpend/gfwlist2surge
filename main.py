@@ -10,6 +10,7 @@ from pathlib import Path
 
 # Logging format
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 GFWLIST_URL = 'https://raw.githubusercontent.com/gfwlist/gfwlist/refs/heads/master/gfwlist.txt'
 # GFWLIST_URL = 'http://repo.or.cz/gfwlist.git/blob_plain/HEAD:/gfwlist.txt'
@@ -91,7 +92,7 @@ def sanitize_gfwlist(content: list[str]) -> list[str]:
         with open('tld.txt', 'r') as fh:
             tld_list = fh.read().lower().splitlines()
     except FileNotFoundError:
-        logging.error("tld.txt file not found.")
+        logger.error("tld.txt file not found.")
         return []
 
     sanitized_list = []
@@ -111,13 +112,13 @@ def add_custom(content: list[str], custom: str) -> list[str]:
         with open(custom, 'r', encoding='utf-8') as fh:
             custom_list = fh.read().splitlines()
     except FileNotFoundError:
-        logging.error(f"Custom rule file {custom} not found.")
+        logger.error(f"Custom rule file {custom} not found.")
         return content
     filtered_custom_list = []
     domain_set = set(content)
     for domain in custom_list:
         if domain in domain_set:
-            logging.info(f"Ignored duplicate domain in custom rule: {domain}")
+            logger.info(f"Ignored duplicate domain in custom rule: {domain}")
         else:
             filtered_custom_list.append(domain)
     complete_list = content + filtered_custom_list
@@ -130,7 +131,7 @@ def download_file(url: str) -> bytes|None:
         response = urllib.request.urlopen(url, timeout=10)
         return response.read()
     except urllib.error.URLError as e:
-        logging.error(f"Failed to download file from {url}: {e}")
+        logger.error(f"Failed to download file from {url}: {e}")
         return None
 
 
@@ -145,7 +146,7 @@ def update_tld(content: bytes|None) -> None:
         with open('tld.txt', 'w') as fh:
             fh.writelines(tld_list)
     except IOError as e:
-        logging.error(f"Failed to write to tld.txt: {e}")
+        logger.error(f"Failed to write to tld.txt: {e}")
 
 
 def main() -> None:
@@ -153,7 +154,7 @@ def main() -> None:
     local_tld = Path('./tld.txt')
 
     if args.tld or (not local_tld.exists()):
-        logging.info(f"Downloading TLD list from: {TLDLIST_URL}")
+        logger.info(f"Downloading TLD list from: {TLDLIST_URL}")
         tldlist_raw = download_file(TLDLIST_URL)
         update_tld(tldlist_raw)
 
@@ -166,18 +167,18 @@ def main() -> None:
                     else:
                         gfwlist_raw = base64.b64decode(fh.read()).decode('utf-8')
             except FileNotFoundError:
-                logging.error(f"Input file {args.input} not found.")
+                logger.error(f"Input file {args.input} not found.")
                 return
         else:
             if args.plain:
-                logging.info(f"Downloading plain text gfwlist from: {GFWLIST_PLAIN}")
+                logger.info(f"Downloading plain text gfwlist from: {GFWLIST_PLAIN}")
                 gfwlist_raw = download_file(GFWLIST_PLAIN)
                 if gfwlist_raw is None:
                     return
                 else:
                     gfwlist_raw = gfwlist_raw.decode('utf-8')
             else:
-                logging.info(f"Downloading base64 encoded gfwlist from: {GFWLIST_URL}")
+                logger.info(f"Downloading base64 encoded gfwlist from: {GFWLIST_URL}")
                 gfwlist_raw = download_file(GFWLIST_URL)
                 if gfwlist_raw is None:
                     return
@@ -206,9 +207,9 @@ def main() -> None:
                 else:
                     for line in final_list:
                         fh.write('.' + line + '\n')
-            logging.info(f"Generated {len(final_list)} domains in {args.output}")
+            logger.info(f"Generated {len(final_list)} domains in {args.output}")
         except IOError as e:
-            logging.error(f"Failed to write to output file {args.output}: {e}")
+            logger.error(f"Failed to write to output file {args.output}: {e}")
 
 
 if __name__ == '__main__':
