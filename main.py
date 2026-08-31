@@ -76,7 +76,7 @@ def clean_domain(domain: str) -> str|None:
 
 def parse_gfwlist(content: list[str]) -> list[str]:
     '''Parse GFWList line by line'''
-    parsed_list = []
+    parsed_list: list[str] = []
 
     for domain in content:
         domain = clean_domain(domain)
@@ -95,7 +95,7 @@ def sanitize_gfwlist(content: list[str]) -> list[str]:
         logger.error("tld.txt file not found.")
         return []
 
-    sanitized_list = []
+    sanitized_list: list[str] = []
     seen = set()
 
     for domain in content:
@@ -114,7 +114,7 @@ def add_custom(content: list[str], custom: str) -> list[str]:
     except FileNotFoundError:
         logger.error(f"Custom rule file {custom} not found.")
         return content
-    filtered_custom_list = []
+    filtered_custom_list: list[str] = []
     domain_set = set(content)
     for domain in custom_list:
         if domain in domain_set:
@@ -202,11 +202,9 @@ def main() -> None:
             with open(args.output, 'w') as fh:
                 if args.clash:
                     fh.write('payload:\n')
-                    for line in final_list:
-                        fh.write('  - \'+.'+ line + '\'\n')
+                    fh.writelines('  - \'+.'+ line + '\'\n' for line in final_list)
                 else:
-                    for line in final_list:
-                        fh.write('.' + line + '\n')
+                    fh.writelines('.' + line + '\n' for line in final_list)
             logger.info(f"Generated {len(final_list)} domains in {args.output}")
         except OSError as e:
             logger.error(f"Failed to write to output file {args.output}: {e}")
