@@ -21,37 +21,37 @@ TLDLIST_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt'
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument(
+    _ = parser.add_argument(
         '-c', '--custom',
         required=False,
         dest='custom',
         help='optional argument for local custom domain list',
         metavar='CUSTOM.CONF')
-    parser.add_argument(
+    _ = parser.add_argument(
         '-cl', '--clash',
         required=False,
         dest='clash',
         help='optional argument for clash payload output, default is clash.yaml',
         action='store_true')
-    parser.add_argument(
+    _ = parser.add_argument(
         '-i', '--input',
         required=False,
         dest='input',
         help='optional argument for local GFWList file (base64 encoded)',
         metavar='GFWLIST')
-    parser.add_argument(
+    _ = parser.add_argument(
         '-o', '--output',
         required=False,
         dest='output',
         help='optional argument for output file name, default is surge.conf, or clash.yaml if -cl is used',
         metavar='FILENAME')
-    parser.add_argument(
+    _ = parser.add_argument(
         '-p', '--plain',
         required=False,
         dest='plain',
         help='optional argument for using plain text GFWList over base64 encoded list',
         action='store_true')
-    parser.add_argument(
+    _ = parser.add_argument(
         '-t', '--tld',
         required=False,
         dest='tld',
@@ -96,7 +96,7 @@ def sanitize_gfwlist(content: list[str]) -> list[str]:
         return []
 
     sanitized_list: list[str] = []
-    seen = set()
+    seen: set[str] = set()
 
     for domain in content:
         domain_suffix = domain.rsplit('.', 1)[-1]
@@ -140,7 +140,7 @@ def update_tld(content: bytes|None) -> None:
     if content is None:
         return
     tld_list = content.decode('utf-8').splitlines()
-    tld_list.pop(0)
+    _ = tld_list.pop(0)
     tld_list = '\n'.join([domain for domain in tld_list if not domain.startswith('XN--')])
     try:
         with open('tld.txt', 'w') as fh:
